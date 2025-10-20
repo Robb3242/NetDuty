@@ -1,5 +1,4 @@
 import flet as ft
-from flet import *
 import types
 import json, os, sys
 
@@ -12,10 +11,10 @@ def main(page: ft.Page):
 
     def initialization():
         if  page.platform_brightness == ft.Brightness.LIGHT:
-            theme_button.icon = ft.Icons.LIGHT_MODE
+            theme_button.icon = ft.icons.LIGHT_MODE
             page.theme_mode = "light"
         else:
-            theme_button.icon = ft.Icons.DARK_MODE
+            theme_button.icon = ft.icons.DARK_MODE
             page.theme_mode = "dark"
         
         page.update()
@@ -24,11 +23,11 @@ def main(page: ft.Page):
     def change_theme(e):
         if page.theme_mode == "dark":
             page.theme_mode = "light"
-            e.control.icon=ft.Icons.LIGHT_MODE
+            e.control.icon=ft.icons.LIGHT_MODE
             page.update()
         else:
             page.theme_mode = "dark"
-            e.control.icon=ft.Icons.DARK_MODE
+            e.control.icon=ft.icons.DARK_MODE
             page.update()
 
     def load_duty():
@@ -288,7 +287,7 @@ def main(page: ft.Page):
                 controls=[
                 ft.Text("   "),
                 ft.Text("Неделя 1"),
-                ft.IconButton(icon=ft.Icons.ARROW_RIGHT, on_click=change_week,
+                ft.IconButton(icon=ft.icons.ARROW_RIGHT, on_click=change_week,
                             data="+1")
             ],col={"sm": 12, "md": 10, "lg": 8})
     ]))
@@ -298,7 +297,7 @@ def main(page: ft.Page):
     lcct_statusoutput = ft.Text(size=15, height=0)
     lcsc_statusoutput = ft.Text(size=15, height=0)
 
-    theme_button = ft.IconButton(icon=ft.Icons.LIGHT_MODE, icon_size=15, on_click=change_theme)
+    theme_button = ft.IconButton(icon=ft.icons.LIGHT_MODE, icon_size=15, on_click=change_theme)
 
     ## // END
     # Page's 
@@ -312,7 +311,7 @@ def main(page: ft.Page):
                                 ], expand=True),
                                 ft.Row([
                                     theme_button,
-                                    ft.IconButton(icon=ft.Icons.CLOSE, icon_size=15, on_click=lambda e: sys.exit())
+                                    ft.IconButton(icon=ft.icons.CLOSE, icon_size=15, on_click=lambda e: sys.exit())
                                 ], expand=True, alignment=ft.MainAxisAlignment.END)
                                 ]),
                             height=30,
@@ -326,13 +325,13 @@ def main(page: ft.Page):
                             ft.Text(""),
                             ft.Row([
                                 ft.Text("    "),
-                                ft.ElevatedButton(content=ft.Text("Классы"), icon=ft.Icons.CLASS_,
+                                ft.ElevatedButton(content=ft.Text("Классы"), icon=ft.icons.CLASS_,
                                                 on_click=change_page, data=("classes", load_schols))
                             ]),
                             ft.Text(""),
                             ft.Row([
                                 ft.Text("    "),
-                                ft.ElevatedButton(content=ft.Text("Создать класс"), icon=ft.Icons.CREATE,
+                                ft.ElevatedButton(content=ft.Text("Создать класс"), icon=ft.icons.CREATE,
                                                 on_click=change_page, data=("create class", None))
                             ])
                     ], expand=True, col={"sm": 12, "md": 10, "lg": 8})])])))
@@ -346,7 +345,7 @@ def main(page: ft.Page):
                             ft.Text("NetDuty", size=15)
                         ], expand=True),
                         ft.Row([
-                            ft.IconButton(icon=ft.Icons.EXIT_TO_APP, icon_size=15,
+                            ft.IconButton(icon=ft.icons.EXIT_TO_APP, icon_size=15,
                                             on_click=change_page, data=("common", None))
                         ], expand=True, alignment=ft.MainAxisAlignment.END)
                         ]),
@@ -380,7 +379,7 @@ def main(page: ft.Page):
                     ], expand=True),
                     ft.Row([
                         ft.IconButton(
-                            icon=ft.Icons.EXIT_TO_APP,
+                            icon=ft.icons.EXIT_TO_APP,
                             icon_size=15,
                             on_click=change_page, 
                             data=("common", None)
@@ -435,7 +434,7 @@ def main(page: ft.Page):
                         ]),
                         padding=5),
                     ft.Text(''),
-                    ft.ElevatedButton("Ок", icon=ft.Icons.CHECK, 
+                    ft.ElevatedButton("Ок", icon=ft.icons.CHECK, 
                                       on_click=validate_class, data=("common", None))
                 ], 
                 expand=True, col={"sm": 12, "md": 10, "lg": 8}
@@ -455,7 +454,7 @@ def main(page: ft.Page):
                         ], expand=True),
                         ft.Row([
                             ft.IconButton(
-                                icon=ft.Icons.EXIT_TO_APP,
+                                icon=ft.icons.EXIT_TO_APP,
                                 icon_size=15,
                                 on_click=change_page, 
                                 data=("common", None)
