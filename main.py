@@ -103,7 +103,7 @@ if __name__ == "__main__":
     try:
         ft.app(
             target=main,
-            view=ft.AppView.WEB_BROWSER,
+            view=ft.AppView.FLET_APP,
             port=0  # Автовыбор порта
         )
     except KeyboardInterrupt:
