@@ -2,10 +2,6 @@ import flet as ft
 import os
 import sys
 
-# ОТКЛЮЧАЕМ АВТОУСТАНОВКУ ДО ИМПОРТА FLET
-os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
-os.environ["FLET_DISABLE_AUTO_IMPORTS"] = "1"
-
 def main(page: ft.Page):
     page.title = "NetDuty"
     page.window.width = 400
