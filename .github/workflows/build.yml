@@ -1,7 +1,10 @@
+# .github/workflows/build-linux.yml
 name: Build Linux Executable
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
 
 jobs:
@@ -18,49 +21,26 @@ jobs:
     
     - name: Install dependencies
       run: |
+        python -m pip install --upgrade pip
         pip install flet pyinstaller
-        
-    - name: Create optimized script
-      run: |
-        cat > netduty_optimized.py << 'EOF'
-        import os
-        os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
-        os.environ["FLET_DISABLE_AUTO_IMPORTS"] = "1"
-        
-        import flet as ft
-        
-        def main(page: ft.Page):
-            page.title = "NetDuty"
-            page.window.width = 800
-            page.window.height = 600
-            page.padding = 0
-            
-            # Минимальный интерфейс
-            page.add(
-                ft.Container(
-                    content=ft.Column([
-                        ft.Text("NetDuty", size=24, weight=ft.FontWeight.BOLD),
-                        ft.Text("Приложение для учета дежурств", size=14),
-                        ft.FilledButton("Выход", on_click=lambda _: page.window.close()),
-                    ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                    padding=20,
-                    expand=True
-                )
-            )
-        
-        if __name__ == "__main__":
-            ft.app(target=main, view=ft.AppView.FLET_APP)
-        EOF
         
     - name: Build with PyInstaller
       run: |
+        cd src
         pyinstaller --onefile \
-        --name NetDuty \
-        --add-data "$(python -c 'import flet; print(flet.__path__[0])'):flet" \
-        netduty_optimized.py
+          --windowed \
+          --name NetDuty \
+          --add-data ".::." \
+          --hidden-import flet \
+          --hidden-import flet.core \
+          --hidden-import flet.utils \
+          --exclude-module tkinter \
+          --exclude-module matplotlib \
+          --exclude-module pandas \
+          main.py
         
-    - name: Upload Linux App
+    - name: Upload Linux Executable
       uses: actions/upload-artifact@v4
       with:
         name: NetDuty-Linux
-        path: dist/NetDuty
+        path: src/dist/NetDuty
