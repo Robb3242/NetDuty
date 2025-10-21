@@ -22,6 +22,7 @@ jobs:
         pip install flet pyinstaller
 
     - name: Build with PyInstaller
+      shell: cmd
       run: |
         cd src
         pyinstaller --onefile --windowed --name NetDuty --add-data "assets;assets" --add-data "Classes;Classes" --noconfirm main.py
