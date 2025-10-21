@@ -21,8 +21,6 @@ jobs:
     - name: Install dependencies
       run: |
         pip install flet pyinstaller
-        # Добавь здесь другие зависимости если нужны
-        # pip install requests pandas etc
 
     - name: Build with PyInstaller
       run: |
