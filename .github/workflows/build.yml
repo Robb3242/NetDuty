@@ -1,4 +1,4 @@
-name: Build Linux App
+name: Build Optimized Linux App
 
 on:
   push:
@@ -19,14 +19,22 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flet pyinstaller
+        pip install flet==0.24.1 pyinstaller
         
-    - name: Build Linux App
+    - name: Build with optimizations
       run: |
-        pyinstaller --onefile --windowed --name "NetDuty" main.py
+        pyinstaller --clean --noconfirm \
+          --name "NetDuty" \
+          --onefile \
+          --windowed \
+          --add-data "Classes:Classes" \
+          --exclude-module tkinter \
+          --exclude-module matplotlib \
+          --exclude-module pandas \
+          main.py
         
     - name: Upload Linux App
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-Linux
+        name: NetDuty-Linux-Optimized
         path: dist/NetDuty
