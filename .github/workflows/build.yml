@@ -1,4 +1,4 @@
-name: Build with cx_Freeze
+name: Build with Nuitka
 
 on:
   push:
@@ -16,41 +16,16 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install cx_Freeze
+    - name: Install dependencies
       run: |
-        pip install flet cx-freeze
+        pip install flet nuitka
         
-    - name: Create setup.py
+    - name: Build with Nuitka
       run: |
-        cat > setup.py << 'EOF'
-        import sys
-        from cx_Freeze import setup, Executable
-        
-        build_options = {
-            "packages": ["flet"],
-            "excludes": ["tkinter", "matplotlib", "pandas"],
-            "include_files": []
-        }
-        
-        base = None
-        if sys.platform == "win32":
-            base = "Win32GUI"
-        
-        setup(
-            name="NetDuty",
-            version="1.0",
-            description="NetDuty App",
-            options={"build_exe": build_options},
-            executables=[Executable("main.py", base=base, target_name="NetDuty")]
-        )
-        EOF
-    
-    - name: Build with cx_Freeze
-      run: |
-        python setup.py build
+        python -m nuitka --standalone --onefile main.py --output-filename=NetDuty
         
     - name: Upload App
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-cxFreeze
-        path: build/exe.linux-*
+        name: NetDuty-Nuitka
+        path: NetDuty
