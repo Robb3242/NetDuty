@@ -2,16 +2,21 @@ import types
 import json
 import os
 import sys
+from multiprocessing import freeze_support
 
 os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
 os.environ["FLET_DISABLE_AUTO_IMPORTS"] = "1"
 os.environ["FLET_DISABLE_MULTIPROCESSING"] = "1"
 
-try:
-    from multiprocessing import freeze_support
+if getattr(sys, 'frozen', False):
     freeze_support()
-except ImportError:
-    pass 
+
+# Принудительно устанавливаем spawn метод
+if sys.platform.startswith('win'):
+    try:
+        freeze_support()
+    except:
+        pass
 
 import flet as ft
 
