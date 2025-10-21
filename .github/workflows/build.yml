@@ -65,3 +65,9 @@ jobs:
       with:
         name: NetDuty-Windows
         path: src/dist/NetDuty.exe
+        
+    - name: Build with PyInstaller (simple approach)
+      shell: cmd
+      run: |
+        cd src
+        pyinstaller --onefile --windowed --name NetDuty launcher.py
