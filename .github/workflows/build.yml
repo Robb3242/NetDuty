@@ -1,4 +1,4 @@
-name: Build NetDuty No Auto Install
+name: Build with cx_Freeze
 
 on:
   push:
@@ -16,22 +16,41 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install dependencies
+    - name: Install cx_Freeze
       run: |
-        pip install flet pyinstaller
+        pip install flet cx-freeze
         
-    - name: Build with hidden imports
+    - name: Create setup.py
       run: |
-        pyinstaller --onefile \
-        --name "NetDuty" \
-        --hidden-import flet \
-        --hidden-import flet.core \
-        --hidden-import flet.utils \
-        --add-data "$(python -c 'import flet; print(flet.__path__[0])'):flet" \
-        main.py
+        cat > setup.py << 'EOF'
+        import sys
+        from cx_Freeze import setup, Executable
+        
+        build_options = {
+            "packages": ["flet"],
+            "excludes": ["tkinter", "matplotlib", "pandas"],
+            "include_files": []
+        }
+        
+        base = None
+        if sys.platform == "win32":
+            base = "Win32GUI"
+        
+        setup(
+            name="NetDuty",
+            version="1.0",
+            description="NetDuty App",
+            options={"build_exe": build_options},
+            executables=[Executable("main.py", base=base, target_name="NetDuty")]
+        )
+        EOF
+    
+    - name: Build with cx_Freeze
+      run: |
+        python setup.py build
         
     - name: Upload App
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-No-Auto-Install
-        path: dist/NetDuty
+        name: NetDuty-cxFreeze
+        path: build/exe.linux-*
