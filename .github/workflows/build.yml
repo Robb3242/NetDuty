@@ -1,4 +1,5 @@
-name: Build Windows Executable - Perfect
+# .github/workflows/build-windows-final.yml
+name: Build Windows Final
 
 on:
   push:
@@ -21,19 +22,47 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet pyinstaller
         
-    - name: Clean previous builds
+    - name: Clean environment
       run: |
         cd src
+        # Полная очистка
         Remove-Item -Recurse -Force dist, build -ErrorAction SilentlyContinue
-        Remove-Item -Force *.spec -ErrorAction SilentlyContinue
+        Remove-Item -Force *.spec, *.pyc -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force __pycache__ -ErrorAction SilentlyContinue
         
-    - name: Build EXACTLY like Linux version
+    - name: Create clean main.py
       run: |
         cd src
-        pyinstaller --onefile --windowed --name NetDuty main.py
+        # Создаем очищенную версию main.py
+        $originalContent = Get-Content -Path "main.py" -Raw
+        # Добавляем в начало файла отключение всех авто-процессов
+        $newContent = @"
+import os
+os.environ['FLET_DISABLE_AUTO_INSTALL'] = '1'
+os.environ['FLET_DISABLE_AUTO_IMPORTS'] = '1'
+os.environ['FLET_DISABLE_HOT_RELOAD'] = '1'
+
+# Принудительно отключаем все возможные мультипроцессы
+import sys
+if hasattr(sys, 'frozen'):
+    # Мы в скомпилированном приложении - отключаем всё
+    os.environ['FLET_DISABLE_MULTIPROCESSING'] = '1'
+
+"@ + $originalContent
+        $newContent | Out-File -FilePath "main_clean.py" -Encoding utf8
         
-    - name: Upload Windows Executable
+    - name: Build with clean settings
+      run: |
+        cd src
+        pyinstaller --onefile `
+          --windowed `
+          --name NetDuty `
+          --clean `
+          --noconfirm `
+          main_clean.py
+        
+    - name: Upload final executable
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-Windows-Perfect
+        name: NetDuty-Windows-Final
         path: src/dist/NetDuty.exe
