@@ -1,11 +1,11 @@
-name: Build NetDuty Linux
+name: Build NetDuty Clean
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-linux:
+  build-clean:
     runs-on: ubuntu-latest
     
     steps:
@@ -16,18 +16,23 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install dependencies
+    - name: Install only flet
       run: |
         python -m pip install --upgrade pip
-        pip install flet
+        pip install flet==0.10.0  # конкретная версия
         
-    - name: Build with PyInstaller
+    - name: Create flet.yaml
       run: |
-        pip install pyinstaller
-        pyinstaller --onefile --name "NetDuty" main.py
+        echo 'name: "NetDuty"
+description: "NetDuty Application" 
+publish: false' > flet.yaml
         
-    - name: Upload Linux App
+    - name: Build with Flet CLI
+      run: |
+        flet build linux --include-packages flet
+        
+    - name: Upload Result
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-Linux
-        path: dist/NetDuty
+        name: NetDuty-Clean-Build
+        path: build/linux
