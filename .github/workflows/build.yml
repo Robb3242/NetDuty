@@ -11,23 +11,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Build in Docker and extract executable
+    - name: Create fixed main.py
       run: |
-        # Создаем Dockerfile для сборки
-        cat > Dockerfile.build << 'EOF'
-        FROM python:3.11-slim
-        
-        WORKDIR /app
-        COPY . .
-        
-        RUN apt-get update && apt-get install -y \
-            build-essential \
-            && rm -rf /var/lib/apt/lists/*
-            
-        RUN pip install flet pyinstaller
-        
-        # Создаем простейшее приложение без автоустановки
-        cat > main_fixed.py << 'INNER'
+        cat > main_fixed.py << 'EOF'
         import os
         os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
         import flet as ft
@@ -46,7 +32,23 @@ jobs:
         
         if __name__ == "__main__":
             ft.app(target=main)
-        INNER
+        EOF
+        
+    - name: Build in Docker and extract executable
+      run: |
+        # Создаем Dockerfile для сборки
+        cat > Dockerfile.build << 'EOF'
+        FROM python:3.11-slim
+        
+        WORKDIR /app
+        
+        RUN apt-get update && apt-get install -y \
+            build-essential \
+            && rm -rf /var/lib/apt/lists/*
+            
+        RUN pip install flet pyinstaller
+        
+        COPY main_fixed.py .
         
         RUN pyinstaller --onefile --name NetDuty main_fixed.py
         EOF
