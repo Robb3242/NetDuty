@@ -1,7 +1,14 @@
-import flet as ft
 from flet import *
 import types
 import json, os, sys
+
+os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
+os.environ["FLET_DISABLE_AUTO_IMPORTS"] = "1"
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support() 
+
+import flet as ft
 
 def main(page: ft.Page):
     page.adaptive = True
