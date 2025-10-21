@@ -1,6 +1,39 @@
 name: Build Windows App
 
+on:name: Build Windows App
+
 on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install flet pyinstaller
+
+    - name: Build with PyInstaller (simple approach)
+      shell: cmd
+      run: |
+        cd src
+        pyinstaller --onefile --windowed --name NetDuty main.py
+
+    - name: Upload Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetDuty-Windows
+        path: src/dist/NetDuty.exe
   push:
     branches: [ main ]
   workflow_dispatch:
