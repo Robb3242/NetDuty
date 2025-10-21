@@ -1,10 +1,8 @@
 name: Build Windows App
 
-on:name: Build Windows App
-
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -12,62 +10,25 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        pip install flet pyinstaller
+      - name: Install dependencies
+        run: |
+          pip install flet pyinstaller
 
-    - name: Build with PyInstaller (simple approach)
-      shell: cmd
-      run: |
-        cd src
-        pyinstaller --onefile --windowed --name NetDuty main.py
+      - name: Build with PyInstaller
+        shell: cmd
+        run: |
+          cd src
+          pyinstaller --onefile --windowed --name NetDuty main.py
 
-    - name: Upload Executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: NetDuty-Windows
-        path: src/dist/NetDuty.exe
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
-jobs:
-  build-windows:
-    runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
-    - name: Install dependencies
-      run: |
-        pip install flet pyinstaller
-
-    - name: Build with PyInstaller
-      shell: cmd
-      run: |
-        cd src
-        pyinstaller --onefile --windowed --name NetDuty --add-data "assets;assets" --add-data "Classes;Classes" --noconfirm main.py
-
-    - name: Upload Executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: NetDuty-Windows
-        path: src/dist/NetDuty.exe
-        
-    - name: Build with PyInstaller (simple approach)
-      shell: cmd
-      run: |
-        cd src
-        pyinstaller --onefile --windowed --name NetDuty launcher.py
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetDuty-Windows
+          path: src/dist/NetDuty.exe
