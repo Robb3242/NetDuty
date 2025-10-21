@@ -20,8 +20,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
         pip install flet pyinstaller
+        # Добавь здесь другие зависимости если нужны
+        # pip install requests pandas etc
 
     - name: Build with PyInstaller
       run: |
