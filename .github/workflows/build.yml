@@ -19,14 +19,12 @@ jobs:
 
     - name: Install latest flet
       run: |
-        pip install --upgrade flet
-
-    - name: Build with Flet (UTF-8 fix)
-      shell: cmd
+        pip install --upgrade flet  
+        
+    - name: Build Windows app with Flet
       run: |
-        chcp 65001
-        cd src
-        flet build windows
+       cd src
+       flet build windows --no-rich-output
 
     - name: Upload Executable
       uses: actions/upload-artifact@v4
