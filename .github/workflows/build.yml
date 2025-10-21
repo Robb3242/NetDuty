@@ -21,10 +21,13 @@ jobs:
       run: |
         pip install flet
 
-    - name: Build Windows app
+    - name: Build Windows app (no rich output)
       run: |
         cd src
-        flet build windows --no-rich-output
+        python -c "import subprocess; subprocess.run(['flet', 'build', 'windows'], env={**dict(os.environ), 'TERM': 'dumb'})"
+      env:
+        PYTHONIOENCODING: utf-8
+        FORCE_COLOR: 0
 
     - name: Upload Executable
       uses: actions/upload-artifact@v4
