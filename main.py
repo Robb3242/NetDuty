@@ -1,36 +1,18 @@
 import flet as ft
-import json
 import os
 import sys
-import multiprocessing
-import atexit
-
-# Отключаем ненужные процессы
-if hasattr(multiprocessing, 'set_start_method'):
-    multiprocessing.set_start_method('spawn', force=True)
-
-def cleanup():
-    """Очистка процессов при выходе"""
-    try:
-        current = multiprocessing.current_process()
-        if current.name == 'MainProcess':
-            for process in multiprocessing.active_children():
-                process.terminate()
-    except:
-        pass
-
-# Регистрируем очистку
-atexit.register(cleanup)
 
 def main(page: ft.Page):
-    # Базовые настройки - УБИРАЕМ все сложные настройки
+    # Базовые настройки
     page.title = "NetDuty"
     page.window.width = 800
     page.window.height = 600
     page.window.min_width = 600
     page.window.min_height = 400
     
-    # Простая навигация
+    # Отключаем лишние функции Flet
+    page.theme_mode = ft.ThemeMode.LIGHT
+    
     def show_common(e=None):
         page.clean()
         page.add(common_page)
@@ -41,18 +23,12 @@ def main(page: ft.Page):
         page.add(classes_page)
         page.update()
     
-    def exit_app(e):
-        """Корректный выход"""
-        cleanup()
-        page.window.close()
-        sys.exit(0)
-    
     # Простые страницы
     common_page = ft.Column([
         ft.Container(
             content=ft.Row([
                 ft.Text("NetDuty", size=20, weight=ft.FontWeight.BOLD),
-                ft.IconButton(icon=ft.icons.CLOSE, on_click=exit_app)
+                ft.IconButton(icon=ft.icons.CLOSE, on_click=lambda _: page.window.close())
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             padding=10,
             bgcolor=ft.colors.BLUE_100
@@ -60,11 +36,7 @@ def main(page: ft.Page):
         ft.Container(
             content=ft.Column([
                 ft.Text("Добро пожаловать в NetDuty", size=16),
-                ft.ElevatedButton("Классы", on_click=show_classes, 
-                                style=ft.ButtonStyle(
-                                    color=ft.colors.WHITE,
-                                    bgcolor=ft.colors.BLUE
-                                )),
+                ft.ElevatedButton("Классы", on_click=show_classes),
                 ft.Text("Простое приложение для учета дежурств", size=12)
             ], alignment=ft.MainAxisAlignment.CENTER, 
                horizontal_alignment=ft.CrossAxisAlignment.CENTER),
@@ -78,7 +50,7 @@ def main(page: ft.Page):
             content=ft.Row([
                 ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=show_common),
                 ft.Text("Классы", size=20, weight=ft.FontWeight.BOLD),
-                ft.Container(width=40)  # placeholder для выравнивания
+                ft.Container(width=40)
             ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             padding=10,
             bgcolor=ft.colors.GREEN_100
@@ -95,19 +67,8 @@ def main(page: ft.Page):
         )
     ], expand=True)
     
-    # Начальная страница
     show_common()
 
 if __name__ == "__main__":
-    # Используем простой режим запуска
-    try:
-        ft.app(
-            target=main,
-            view=ft.AppView.FLET_APP,
-            port=0  # Автовыбор порта
-        )
-    except KeyboardInterrupt:
-        cleanup()
-    except Exception as e:
-        print(f"Ошибка запуска: {e}")
-        cleanup()
+    # Используем самый простой запуск
+    ft.app(target=main)
