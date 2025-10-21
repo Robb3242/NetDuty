@@ -1,5 +1,5 @@
 import types
-import json,
+import json
 import os
 import sys
 
