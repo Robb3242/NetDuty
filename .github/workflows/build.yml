@@ -1,4 +1,69 @@
-name: Build Docker Container
+name: Build Linux Executable from Docker
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build in Docker and extract executable
+      run: |
+        # Создаем Dockerfile для сборки
+        cat > Dockerfile.build << 'EOF'
+        FROM python:3.11-slim
+        
+        WORKDIR /app
+        COPY . .
+        
+        RUN apt-get update && apt-get install -y \
+            build-essential \
+            && rm -rf /var/lib/apt/lists/*
+            
+        RUN pip install flet pyinstaller
+        
+        # Создаем простейшее приложение без автоустановки
+        cat > main_fixed.py << 'INNER'
+        import os
+        os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
+        import flet as ft
+        
+        def main(page: ft.Page):
+            page.title = "NetDuty"
+            page.window.width = 400
+            page.window.height = 300
+            page.add(
+                ft.Column([
+                    ft.Text("NetDuty - Docker Built", size=20),
+                    ft.Text("No auto-install processes"),
+                    ft.ElevatedButton("Exit", on_click=lambda _: page.window.close())
+                ])
+            )
+        
+        if __name__ == "__main__":
+            ft.app(target=main)
+        INNER
+        
+        RUN pyinstaller --onefile --name NetDuty main_fixed.py
+        EOF
+        
+        # Собираем образ
+        docker build -f Dockerfile.build -t netduty-build .
+        
+        # Извлекаем исполняемый файл из контейнера
+        docker create --name extract netduty-build
+        docker cp extract:/app/dist/NetDuty ./NetDuty
+        docker rm -f extract
+        
+    - name: Upload Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetDuty-Linux-Executable
+        path: NetDutyname: Build Docker Container
 
 on:
   push:
