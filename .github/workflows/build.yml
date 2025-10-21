@@ -21,14 +21,12 @@ jobs:
         run: |
           pip install flet
 
-      - name: Build Windows app with encoding fix
-        shell: pwsh
+      - name: Build Windows app
+        shell: cmd
         run: |
-          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-          $env:PYTHONIOENCODING = 'utf-8'
-          $env:FORCE_COLOR = '0'
+          chcp 65001
           cd src
-          python -u -m flet build windows
+          flet build windows
 
       - name: Check build result
         shell: cmd
