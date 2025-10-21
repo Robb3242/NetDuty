@@ -1,9 +1,8 @@
+# .github/workflows/build-windows.yml
 name: Build Windows Executable
 
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
 
 jobs:
@@ -23,27 +22,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet pyinstaller
         
-    - name: Clean previous builds
+    - name: Build with PyInstaller
       run: |
         cd src
-        if (Test-Path "dist") { Remove-Item -Recurse -Force dist }
-        if (Test-Path "build") { Remove-Item -Recurse -Force build }
-        if (Test-Path "*.spec") { Remove-Item -Force *.spec }
-        
-    - name: Build with PyInstaller for Windows
-      run: |
-        cd src
-        pyinstaller --onefile `
-          --windowed `
-          --name NetDuty `
-          --add-data ".;." `
-          --hidden-import flet `
-          --hidden-import flet.core `
-          --hidden-import flet.utils `
-          --exclude-module tkinter `
-          --exclude-module matplotlib `
-          --exclude-module pandas `
-          main.py
+        pyinstaller --onefile --windowed --name NetDuty main.py
         
     - name: Upload Windows Executable
       uses: actions/upload-artifact@v4
