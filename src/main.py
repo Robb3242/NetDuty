@@ -2,22 +2,6 @@ import types
 import json
 import os
 import sys
-from multiprocessing import freeze_support
-
-os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
-os.environ["FLET_DISABLE_AUTO_IMPORTS"] = "1"
-os.environ["FLET_DISABLE_MULTIPROCESSING"] = "1"
-
-if getattr(sys, 'frozen', False):
-    freeze_support()
-
-# Принудительно устанавливаем spawn метод
-if sys.platform.startswith('win'):
-    try:
-        freeze_support()
-    except:
-        pass
-
 import flet as ft
 
 def main(page: ft.Page):
