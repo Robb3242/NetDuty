@@ -21,41 +21,24 @@ jobs:
         run: |
           pip install flet
 
-      - name: Create build script
+      - name: Build Windows app
+        shell: pwsh
         run: |
-          @echo off
-          echo import subprocess > build_script.py
-          echo import sys >> build_script.py
-          echo import os >> build_script.py
-          echo. >> build_script.py
-          echo os.environ["FORCE_COLOR"] = "0" >> build_script.py
-          echo os.environ["TERM"] = "dumb" >> build_script.py
-          echo result = subprocess.run([sys.executable, "-m", "flet", "build", "windows"], >> build_script.py
-          echo                     cwd="src", >> build_script.py
-          echo                     capture_output=True, >> build_script.py
-          echo                     text=True, >> build_script.py
-          echo                     encoding="utf-8", >> build_script.py
-          echo                     errors="ignore") >> build_script.py
-          echo. >> build_script.py
-          echo if result.stdout: >> build_script.py
-          echo     print("STDOUT:", result.stdout) >> build_script.py
-          echo if result.stderr: >> build_script.py
-          echo     print("STDERR:", result.stderr) >> build_script.py
-          echo sys.exit(result.returncode) >> build_script.py
-
-      - name: Run build script
-        run: |
-          python build_script.py
+          $env:FORCE_COLOR = "0"
+          $env:TERM = "dumb"
+          cd src
+          python -c "import subprocess; import sys; result = subprocess.run(['flet', 'build', 'windows'], capture_output=True, text=True, encoding='utf-8', errors='ignore'); print('STDOUT:', result.stdout); print('STDERR:', result.stderr); sys.exit(result.returncode)"
 
       - name: Check build result
+        shell: pwsh
         run: |
-          if exist "src\build\windows" (
-            echo "✅ Build successful!"
-            dir "src\build\windows"
-          ) else (
-            echo "❌ Build failed - no output directory"
+          if (Test-Path "src/build/windows") {
+            Write-Host "✅ Build successful!"
+            Get-ChildItem "src/build/windows" -Recurse
+          } else {
+            Write-Host "❌ Build failed - no output directory"
             exit 1
-          )
+          }
 
       - name: Upload Executable
         uses: actions/upload-artifact@v4
