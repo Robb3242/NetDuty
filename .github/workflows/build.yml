@@ -21,12 +21,12 @@ jobs:
         run: |
           pip install flet
 
-      - name: Build Windows app
+      - name: Build Windows app with output redirection
         shell: cmd
         run: |
           chcp 65001
           cd src
-          flet build windows
+          python -c "import subprocess; import sys; result = subprocess.run(['flet', 'build', 'windows'], capture_output=True, text=True, encoding='utf-8'); print('STDOUT:', result.stdout); print('STDERR:', result.stderr); sys.exit(result.returncode)"
 
       - name: Check build result
         shell: cmd
