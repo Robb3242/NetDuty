@@ -2,10 +2,8 @@ name: Build Windows App
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:  # Разрешает ручной запуск
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-windows:
@@ -26,9 +24,9 @@ jobs:
     - name: Build with PyInstaller
       run: |
         cd src
-        pyinstaller --onefile --windowed --name NetDuty main.py
+        pyinstaller --onefile --windowed --name NetDuty --noconfirm --clean main.py
 
-    - name: Upload artifact
+    - name: Upload Windows Executable
       uses: actions/upload-artifact@v4
       with:
         name: NetDuty-Windows
