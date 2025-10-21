@@ -1,12 +1,12 @@
-name: Build Windows EXE
+name: Build Linux App
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build:
-    runs-on: windows-latest
+  build-linux:
+    runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
@@ -21,16 +21,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet pyinstaller
         
-    - name: Build as folder (no onefile)
+    - name: Build Linux App
       run: |
-        pyinstaller --windowed --name "NetDuty" main.py
+        pyinstaller --onefile --windowed --name "NetDuty" main.py
         
-    - name: Create portable ZIP
-      run: |
-        Compress-Archive -Path dist/NetDuty/* -DestinationPath NetDuty-Portable.zip
-        
-    - name: Upload portable version
+    - name: Upload Linux App
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-Portable
-        path: NetDuty-Portable.zip
+        name: NetDuty-Linux
+        path: dist/NetDuty
