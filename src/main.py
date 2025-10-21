@@ -1,12 +1,16 @@
-from flet import *
 import types
-import json, os, sys
+import json,
+import os
+import sys
 
 os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
 os.environ["FLET_DISABLE_AUTO_IMPORTS"] = "1"
 
-if __name__ == '__main__':
-    multiprocessing.freeze_support() 
+try:
+    from multiprocessing import freeze_support
+    freeze_support()
+except ImportError:
+    pass 
 
 import flet as ft
 
