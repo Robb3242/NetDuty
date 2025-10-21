@@ -1,16 +1,52 @@
-name: Build NetDuty
-on: [push]
+name: Build NetDuty with PyInstaller
+
+on:
+  push:
+    branches: [main]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - run: pip install flet
-      - run: flet build linux
-      - uses: actions/upload-artifact@v4
-        with:
-          name: NetDuty-App
-          path: build/linux
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install flet pyinstaller
+        
+    - name: Create simple app for testing
+      run: |
+        cat > simple_app.py << 'EOF'
+        import flet as ft
+        
+        def main(page: ft.Page):
+            page.title = "NetDuty"
+            page.window.width = 400
+            page.window.height = 300
+            page.add(
+                ft.Column([
+                    ft.Text("NetDuty - Simple Version"),
+                    ft.Text("No extra processes"),
+                    ft.ElevatedButton("Exit", on_click=lambda _: page.window.close())
+                ])
+            )
+        
+        if __name__ == "__main__":
+            ft.app(target=main)
+        EOF
+    
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile --name "NetDuty" simple_app.py
+        
+    - name: Upload App
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetDuty-PyInstaller
+        path: dist/NetDuty
