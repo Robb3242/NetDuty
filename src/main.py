@@ -5,6 +5,7 @@ import sys
 
 os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
 os.environ["FLET_DISABLE_AUTO_IMPORTS"] = "1"
+os.environ["FLET_DISABLE_MULTIPROCESSING"] = "1"
 
 try:
     from multiprocessing import freeze_support
