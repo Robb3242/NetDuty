@@ -1,34 +1,64 @@
-      - name: Build using Python script
-        shell: cmd
+name: Build Windows App
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
         run: |
-          cd src
-          python -c "
-import os
-import sys
-import subprocess
+          pip install flet
 
-# Отключаем форматирование
-os.environ['FORCE_COLOR'] = '0'
-os.environ['TERM'] = 'dumb'
-os.environ['PYTHONIOENCODING'] = 'utf-8'
+      - name: Create build script
+        run: |
+          @echo off
+          echo import subprocess > build_script.py
+          echo import sys >> build_script.py
+          echo import os >> build_script.py
+          echo. >> build_script.py
+          echo os.environ["FORCE_COLOR"] = "0" >> build_script.py
+          echo os.environ["TERM"] = "dumb" >> build_script.py
+          echo result = subprocess.run([sys.executable, "-m", "flet", "build", "windows"], >> build_script.py
+          echo                     cwd="src", >> build_script.py
+          echo                     capture_output=True, >> build_script.py
+          echo                     text=True, >> build_script.py
+          echo                     encoding="utf-8", >> build_script.py
+          echo                     errors="ignore") >> build_script.py
+          echo. >> build_script.py
+          echo if result.stdout: >> build_script.py
+          echo     print("STDOUT:", result.stdout) >> build_script.py
+          echo if result.stderr: >> build_script.py
+          echo     print("STDERR:", result.stderr) >> build_script.py
+          echo sys.exit(result.returncode) >> build_script.py
 
-# Запускаем сборку
-try:
-    result = subprocess.run(
-        [sys.executable, '-m', 'flet', 'build', 'windows'],
-        capture_output=True,
-        text=True,
-        encoding='utf-8',
-        errors='ignore'
-    )
-    
-    if result.stdout:
-        print('STDOUT:', result.stdout)
-    if result.stderr:
-        print('STDERR:', result.stderr)
-    
-    sys.exit(result.returncode)
-except Exception as e:
-    print(f'Error: {e}')
-    sys.exit(1)
-"
+      - name: Run build script
+        run: |
+          python build_script.py
+
+      - name: Check build result
+        run: |
+          if exist "src\build\windows" (
+            echo "✅ Build successful!"
+            dir "src\build\windows"
+          ) else (
+            echo "❌ Build failed - no output directory"
+            exit 1
+          )
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetDuty-Windows
+          path: src/build/windows/**/*
