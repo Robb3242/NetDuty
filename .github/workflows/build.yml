@@ -1,4 +1,4 @@
-name: Build with Nuitka
+name: Build Docker Container
 
 on:
   push:
@@ -11,21 +11,30 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    
-    - name: Install dependencies
+    - name: Build Docker image
       run: |
-        pip install flet nuitka
+        cat > Dockerfile << 'EOF'
+        FROM python:3.11-slim
         
-    - name: Build with Nuitka
+        WORKDIR /app
+        COPY . .
+        RUN pip install flet
+        
+        # Создаем пользователя для безопасности
+        RUN useradd -m appuser
+        USER appuser
+        
+        CMD ["python", "main.py"]
+        EOF
+        
+        docker build -t netduty .
+        
+    - name: Save Docker image
       run: |
-        python -m nuitka --standalone --onefile main.py --output-filename=NetDuty
+        docker save netduty -o netduty.tar
         
-    - name: Upload App
+    - name: Upload Docker Image
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-Nuitka
-        path: NetDuty
+        name: NetDuty-Docker
+        path: netduty.tar
