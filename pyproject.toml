@@ -1,0 +1,19 @@
+[project]
+name = "netduty"
+version = "1.0.0"
+description = "NetDuty Application"
+authors = [
+    {name = "Your Name", email = "[email protected]"}
+]
+dependencies = [
+    "flet"
+]
+
+[tool.flet]
+org = "com.yourcompany"
+product = "NetDuty"
+company = "Your Company"
+copyright = "Copyright (C) 2025"
+
+[tool.flet.app]
+path = "src"
