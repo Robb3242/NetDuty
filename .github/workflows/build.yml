@@ -1,4 +1,4 @@
-name: Build NetDuty with PyInstaller
+name: Build NetDuty No Auto Install
 
 on:
   push:
@@ -20,33 +20,18 @@ jobs:
       run: |
         pip install flet pyinstaller
         
-    - name: Create simple app for testing
+    - name: Build with hidden imports
       run: |
-        cat > simple_app.py << 'EOF'
-        import flet as ft
-        
-        def main(page: ft.Page):
-            page.title = "NetDuty"
-            page.window.width = 400
-            page.window.height = 300
-            page.add(
-                ft.Column([
-                    ft.Text("NetDuty - Simple Version"),
-                    ft.Text("No extra processes"),
-                    ft.ElevatedButton("Exit", on_click=lambda _: page.window.close())
-                ])
-            )
-        
-        if __name__ == "__main__":
-            ft.app(target=main)
-        EOF
-    
-    - name: Build with PyInstaller
-      run: |
-        pyinstaller --onefile --name "NetDuty" simple_app.py
+        pyinstaller --onefile \
+        --name "NetDuty" \
+        --hidden-import flet \
+        --hidden-import flet.core \
+        --hidden-import flet.utils \
+        --add-data "$(python -c 'import flet; print(flet.__path__[0])'):flet" \
+        main.py
         
     - name: Upload App
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-PyInstaller
+        name: NetDuty-No-Auto-Install
         path: dist/NetDuty
