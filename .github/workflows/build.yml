@@ -19,19 +19,15 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install flet pyinstaller
+        pip install flet
 
-    - name: Build with PyInstaller
-      shell: cmd
+    - name: Build Windows app
       run: |
         cd src
-        pyinstaller --onefile --windowed --name NetDuty ^
-          --add-data "assets;assets" ^
-          --add-data "Classes;Classes" ^
-          main.py
+        flet build windows --no-rich-output
 
     - name: Upload Executable
       uses: actions/upload-artifact@v4
       with:
         name: NetDuty-Windows
-        path: src/dist/NetDuty.exe
+        path: src/build/windows/**/*
