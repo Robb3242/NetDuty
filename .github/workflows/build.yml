@@ -1,68 +1,66 @@
-name: Build Linux Executable from Docker
+name: Build Linux Executable
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Create fixed main.py
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
       run: |
-        cat > main_fixed.py << 'EOF'
+        pip install flet pyinstaller
+        
+    - name: Create optimized script
+      run: |
+        cat > netduty_optimized.py << 'EOF'
         import os
         os.environ["FLET_DISABLE_AUTO_INSTALL"] = "1"
+        os.environ["FLET_DISABLE_AUTO_IMPORTS"] = "1"
+        
         import flet as ft
         
         def main(page: ft.Page):
             page.title = "NetDuty"
-            page.window.width = 400
-            page.window.height = 300
+            page.window.width = 800
+            page.window.height = 600
+            page.padding = 0
+            
+            # Минимальный интерфейс
             page.add(
-                ft.Column([
-                    ft.Text("NetDuty - Docker Built", size=20),
-                    ft.Text("No auto-install processes"),
-                    ft.ElevatedButton("Exit", on_click=lambda _: page.window.close())
-                ])
+                ft.Container(
+                    content=ft.Column([
+                        ft.Text("NetDuty", size=24, weight=ft.FontWeight.BOLD),
+                        ft.Text("Приложение для учета дежурств", size=14),
+                        ft.FilledButton("Выход", on_click=lambda _: page.window.close()),
+                    ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                    padding=20,
+                    expand=True
+                )
             )
         
         if __name__ == "__main__":
-            ft.app(target=main)
+            ft.app(target=main, view=ft.AppView.FLET_APP)
         EOF
         
-    - name: Build in Docker and extract executable
+    - name: Build with PyInstaller
       run: |
-        # Создаем Dockerfile для сборки
-        cat > Dockerfile.build << 'EOF'
-        FROM python:3.11-slim
+        pyinstaller --onefile \
+        --name NetDuty \
+        --add-data "$(python -c 'import flet; print(flet.__path__[0])'):flet" \
+        netduty_optimized.py
         
-        WORKDIR /app
-        
-        RUN apt-get update && apt-get install -y \
-            build-essential \
-            && rm -rf /var/lib/apt/lists/*
-            
-        RUN pip install flet pyinstaller
-        
-        COPY main_fixed.py .
-        
-        RUN pyinstaller --onefile --name NetDuty main_fixed.py
-        EOF
-        
-        # Собираем образ
-        docker build -f Dockerfile.build -t netduty-build .
-        
-        # Извлекаем исполняемый файл из контейнера
-        docker create --name extract netduty-build
-        docker cp extract:/app/dist/NetDuty ./NetDuty
-        docker rm -f extract
-        
-    - name: Upload Executable
+    - name: Upload Linux App
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-Linux-Executable
-        path: NetDuty
+        name: NetDuty-Linux
+        path: dist/NetDuty
