@@ -1,5 +1,4 @@
-# .github/workflows/build-windows.yml
-name: Build Windows Executable
+name: Build Windows Executable - Perfect
 
 on:
   push:
@@ -22,7 +21,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet pyinstaller
         
-    - name: Build with PyInstaller
+    - name: Clean previous builds
+      run: |
+        cd src
+        Remove-Item -Recurse -Force dist, build -ErrorAction SilentlyContinue
+        Remove-Item -Force *.spec -ErrorAction SilentlyContinue
+        
+    - name: Build EXACTLY like Linux version
       run: |
         cd src
         pyinstaller --onefile --windowed --name NetDuty main.py
@@ -30,5 +35,5 @@ jobs:
     - name: Upload Windows Executable
       uses: actions/upload-artifact@v4
       with:
-        name: NetDuty-Windows
+        name: NetDuty-Windows-Perfect
         path: src/dist/NetDuty.exe
