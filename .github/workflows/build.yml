@@ -1,4 +1,48 @@
-    - name: Build using custom script
-      shell: cmd
-      run: |
-        python build_script.py
+name: Build Windows App
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
+
+      - name: Install dependencies
+        run: |
+          pip install flet
+
+      - name: Build Windows app with encoding fix
+        shell: pwsh
+        run: |
+          [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+          $env:PYTHONIOENCODING = 'utf-8'
+          $env:FORCE_COLOR = '0'
+          cd src
+          python -u -m flet build windows
+
+      - name: Check build result
+        shell: cmd
+        run: |
+          if exist "src\build\windows" (
+            echo "Build successful!"
+            dir "src\build\windows"
+          ) else (
+            echo "Build failed - no output directory"
+            exit 1
+          )
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetDuty-Windows
+          path: src/build/windows/**/*
